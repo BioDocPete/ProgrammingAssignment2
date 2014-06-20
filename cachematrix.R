@@ -1,143 +1,67 @@
-# Assignment: Caching the Inverse of a Matrix
+# ############## Caching the Inverse of a Matrix #################
 # 
-# Matrix inversion is usually a costly computation and their may be some benefit
-# to caching the inverse of a matrix rather than compute it repeatedly (there
-# are also alternatives to matrix inversion that we will not discuss here). Your
-# assignment is to write a pair of functions that cache the inverse of a matrix.
+# This example introduces the <<- operator which can be used to assign a value 
+# to an object in an environment that is different from the current
+# environment."The operators <<- and ->> are normally only used in functions,
+# and cause a search to made through parent environments for an existing
+# definition of the variable being assigned. If such a variable is found (and
+# its binding is not locked) then its value is redefined, otherwise assignment
+# takes place in the global environment." Below are two functions that are used
+# to create a special object that stores a matrix and cache's its inverse.
+# Caching can save calculation time.
 # 
-# Write the following functions:
-# 
-# makeCacheMatrix: This function creates a special "matrix" object that can
-# cache its inverse. cacheSolve: This function computes the inverse of the
-# special "matrix" returned by makeCacheMatrix above. If the inverse has already
-# been calculated (and the matrix has not changed), then the cachesolve should
-# retrieve the inverse from the cache. Computing the inverse of a square matrix
-# can be done with the solve function in R. For example, if X is a square
-# invertible matrix, then solve(X) returns its inverse.
-# 
-# For this assignment, assume that the matrix supplied is always invertible.
-# 
-# In order to complete this assignment, you must do the following:
-# 
-# Fork the GitHub repository containing the stub R files at
-# https://github.com/rdpeng/ProgrammingAssignment2 to create a copy under your
-# own account. Clone your forked GitHub repository to your computer so that you
-# can edit the files locally on your own machine. Edit the R file contained in
-# the git repository and place your solution in that file (please do not rename
-# the file). Commit your completed R file into YOUR git repository and push your
-# git branch to the GitHub repository under your account. Submit to Coursera the
-# URL to your GitHub repository that contains the completed R code for the
-# assignment. In addition to submitting the URL for your GitHub repository, you
-# will need to submit the 40 character SHA-1 hash (as string of numbers from 0-9
-# and letters from a-f) that identifies the repository commit that contains the
-# version of the files you want to submit. You can do this in GitHub by doing
-# the following
-# 
-# Going to your GitHub repository web page for this assignment
-# 
-# Click on the "?? commits" link where ?? is the number of commits you have in
-# the repository. For example, if you made a total of 10 commits to this
-# repository, the link should say "10 commits".
-# 
-# You will see a list of commits that you have made to this repository. The most
-# recent commit is at the very top. If this represents the version of the files
-# you want to submit, then just click the "copy to clipboard" button on the
-# right hand side that should appear when you hover over the SHA-1 hash. Paste
-# this SHA-1 hash into the course web site when you submit your assignment. If
-# you don't want to use the most recent commit, then go down and find the commit
-# you want and copy the SHA-1 hash.
-# 
-# A valid submission will look something like (this is just an example!)
-# 
-# https://github.com/rdpeng/ProgrammingAssignment2
-# 
-# 7c376cc5447f11537f8740af8e07d6facc3d9645
+# SHORT COMMENT DESCRIBING THE makeCacheMatrix FUNCTION: The makeCacheMatrix 
+# function creates a special "matrix" object that can cache its inverse. It uses
+# a list of functions to: 1) set the value of the matrix; 2) get the value of 
+# the matrix; 3) set the value of the inverse matrix; and, 4) get the value of 
+# the inverse matrix. This list is passed to the cacheSolve function.
 
-####################################################################
-####################################################################
-####################################################################
-####################################################################
-## Put comments here that give an overall description of what your
-## functions do
-
-## Write a short comment describing this function
-
-makeCacheMatrix <- function(x = matrix()) {
-
+makeCacheMatrix <- function(x = matrix()) { # makes a matrix to feed cacheSolve
+        im <- NULL                          # sets im to nothing
+        set <- function(y) {                # assignment of new matrix if need 
+                x <<- y                     # assignment in global environment
+                im <<- NULL
+        }
+        get <- function() x                 # gets the matrix
+        setim <- function(solve) im <<- solve # assigns inverse matrix if wanted
+        getim <- function() im              # gets the inverse matrix
+        list(set = set, get = get,          # list passed to cacheSolve
+             setim = setim,
+             getim = getim)
 }
 
+# Test matrices
+a = matrix(c(4,7,2,6),nrow=2,ncol=2,byrow=T) # test matrix 'a'
+b = matrix(c(0,2,2,0),nrow=2,ncol=2,byrow=T) # test matrix 'b'
 
-## Write a short comment describing this function
+# calling first function
+data <- makeCacheMatrix(a) # assigns matrix
+data <- makeCacheMatrix(b) # assigns matrix
+
+# for testing behaviors of the functions
+data$set(b) # assigns a new matrix, if needed.
+data$get() # gives the matrix
+data$setim(ib) # assigns inverse matrix to 'im' (e.g., ib, inverse b) if needed.
+data$getim() # gives matrix; it's NULL unless changed by function 'setim'.
+
+# SHORT COMMENT DESCRIBING THE cacheSolve FUNCTION: The cacheSolve function
+# calculates the inverse of the matrix created with the makeCacheMatrix
+# function. But it first checks whether the inverse matrix has already been
+# calculated. If so, it gets the inverse matrix from the cache and skips the 
+# computation. Otherwise, cacheSolve calculates the inverse matrix of the data
+# and sets its value in the cache via the setim function.
 
 cacheSolve <- function(x, ...) {
-        ## Return a matrix that is the inverse of 'x'
+        im <- x$getim()                        # gets the inverse matrix
+        if(!is.null(im)) {                     # checks if value in cache
+                message("getting cached data") # if cached print message
+                return(im)                     # gives cached value
+        } else {                               # if cache=NULL, calclulate im
+        data <- x$get()                        # gets the matrix
+        im <- solve(data, ...)                 # calculates inverse matrix
+        x$setim(im)                            # caches inverse matrix
+        im}
 }
 
-
-
-Do the tests using the sample outputs.
-For reviewing your results use the print() function.
-
-# Example: Caching the Mean of a Vector
-# 
-# In this example we introduce the <<- operator which can be used to assign a
-# value to an object in an environment that is different from the current
-# environment. Below are two functions that are used to create a special object
-# that stores a numeric vector and cache's its mean.
-# 
-# The first function, makeVector creates a special "vector", which is really a
-# list containing a function to set the value of the vector get the value of the
-# vector set the value of the mean get the value of the mean
-makeVector <- function(x = numeric()) {
-        m <- NULL
-        set <- function(y) {
-                x <<- y
-                m <<- NULL
-        }
-        get <- function() x
-        setmean <- function(mean) m <<- mean
-        getmean <- function() m
-        list(set = set, get = get,
-             setmean = setmean,
-             getmean = getmean)
-}
-
-# The following function calculates the mean of the special "vector" created
-# with the above function. However, it first checks to see if the mean has
-# already been calculated. If so, it gets the mean from the cache and skips the
-# computation. Otherwise, it calculates the mean of the data and sets the value
-# of the mean in the cache via the setmean function.
-
-cachemean <- function(x, ...) {
-        m <- x$getmean()
-        if(!is.null(m)) {
-                message("getting cached data")
-                return(m)
-        }
-        data <- x$get()
-        m <- mean(data, ...)
-        x$setmean(m)
-        m
-}
-
-
-# from discussion forum
-# a = matrix(c(4,7,2,6),nrow=2,ncol=2,byrow=T)
-# > ai = cacheSolve(makeCacheMatrix(a))
-# > ai
-# [,1] [,2]
-# [1,]  0.6 -0.7
-# [2,] -0.2  0.4
-# > ai1 = cacheSolve(makeCacheMatrix(a))
-# > am = makeCacheMatrix(a)
-# > ai = cacheSolve(am)
-# > ai2 = cacheSolve(am)
-# getting cached data
-# > ai %*% a
-# [,1]         [,2]
-# [1,]    1 8.881784e-16
-# [2,]    0 1.000000e+00
-# > > a %*% ai2
-# [,1] [,2]
-# [1,]    1    0
-# [2,]    0    1
+# calls cacheSolve function: returns the inverse matrix if cached or calclates it.
+cacheSolve(data)  
