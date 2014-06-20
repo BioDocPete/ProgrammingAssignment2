@@ -30,15 +30,15 @@ makeCacheMatrix <- function(x = matrix()) { # makes a matrix to feed cacheSolve
              getim = getim)
 }
 
-# Test matrices
+# Two matrices for testing
 a = matrix(c(4,7,2,6),nrow=2,ncol=2,byrow=T) # test matrix 'a'
 b = matrix(c(0,2,2,0),nrow=2,ncol=2,byrow=T) # test matrix 'b'
 
-# calling first function
+# Call first function and give it the matirx.
 data <- makeCacheMatrix(a) # assigns matrix
 data <- makeCacheMatrix(b) # assigns matrix
 
-# for testing behaviors of the functions
+# Commands for testing behaviors of the functions.
 data$set(b) # assigns a new matrix, if needed.
 data$get() # gives the matrix
 data$setim(ib) # assigns inverse matrix to 'im' (e.g., ib, inverse b) if needed.
@@ -63,5 +63,5 @@ cacheSolve <- function(x, ...) {
         im}
 }
 
-# calls cacheSolve function: returns the inverse matrix if cached or calclates it.
+# Calls cacheSolve function: returns the inverse matrix if cached or calculates it.
 cacheSolve(data)  
